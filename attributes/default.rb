@@ -1,5 +1,12 @@
 # encoding: utf-8
 
+## Node.js installation
+
+default['nodejs']['install_method'] = 'binary'
+default['nodejs']['version'] = '8.11.1'
+default['nodejs']['binary']['checksum'] =
+  '6617e245fa0f7fbe0e373e71d543fea878315324ab31dc64b4eba10e42d04c11'
+
 ## System user running verdaccio
 default['verdaccio']['user'] = 'verdaccio'
 
@@ -34,6 +41,7 @@ default['verdaccio']['logdir'] = '/var/log/verdaccio'
 default['verdaccio']['logdays'] = 30
 default['verdaccio']['datadir'] = '/var/lib/verdaccio'
 default['verdaccio']['loglevel'] = 'warn'
+default['verdaccio']['installdir'] = '/opt/verdaccio'
 
 ## NodeJS repo list options
 default['verdaccio']['repos'] = {

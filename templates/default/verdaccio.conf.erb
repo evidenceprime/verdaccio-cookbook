@@ -15,5 +15,5 @@ setgid <%= node['verdaccio']['user'] %>
 respawn
 
 script
-    exec verdaccio -c <%= File.join(node['verdaccio']['confdir'], 'config.yaml') %>
+    exec <%= @executable %> -c <%= @configfile %>
 end script

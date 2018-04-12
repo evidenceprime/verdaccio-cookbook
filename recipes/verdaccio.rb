@@ -5,8 +5,15 @@
 
 require 'digest'
 
+directory node['verdaccio']['installdir'] do
+  recursive true
+  owner node['verdaccio']['user']
+  group node['verdaccio']['user']
+end
+
 nodejs_npm 'verdaccio' do
   version node['verdaccio']['version']
+  path node['verdaccio']['installdir']
 end
 
 directory node['verdaccio']['confdir'] do
@@ -51,6 +58,10 @@ when 'rhel'
   if node['init_package'] == 'systemd'
     template '/usr/lib/systemd/system/verdaccio.service' do
       source 'verdaccio.service.erb'
+      variables ({
+        :executable => File.join(node['verdaccio']['installdir'], 'node_modules', '.bin', 'verdaccio'),
+        :configfile => File.join(node['verdaccio']['confdir'], 'config.yaml')
+      })
       mode '0644'
       notifies :run, 'execute[systemd-reload]', :immediately
       notifies :restart, 'service[verdaccio]', :delayed
@@ -65,19 +76,36 @@ when 'rhel'
     template '/etc/init.d/verdaccio' do
       source 'verdaccio.sysvinit.erb'
       mode '0755'
+      variables ({
+        :executable => File.join(node['verdaccio']['installdir'], 'node_modules', '.bin', 'verdaccio'),
+        :configfile => File.join(node['verdaccio']['confdir'], 'config.yaml')
+      })
     end
   end
 when 'debian'
   if node['init_package'] == 'systemd'
     template '/lib/systemd/system/verdaccio.service' do
       source 'verdaccio.service.erb'
+      variables ({
+        :executable => File.join(node['verdaccio']['installdir'], 'node_modules', '.bin', 'verdaccio'),
+        :configfile => File.join(node['verdaccio']['confdir'], 'config.yaml')
+      })
       mode '0644'
+      notifies :run, 'execute[systemd-reload]', :immediately
       notifies :restart, 'service[verdaccio]', :delayed
+    end
+    execute 'systemd-reload' do
+      command 'systemctl daemon-reload'
+      action :nothing
     end
   else
     template '/etc/init/verdaccio.conf' do
       source 'verdaccio.conf.erb'
       notifies :restart, 'service[verdaccio]', :delayed
+      variables ({
+        :executable => File.join(node['verdaccio']['installdir'], 'node_modules', '.bin', 'verdaccio'),
+        :configfile => File.join(node['verdaccio']['confdir'], 'config.yaml')
+      })
     end
   end
 else
